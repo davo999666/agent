@@ -1,0 +1,4 @@
+# Core Dependencies
+langgraph
+playwright
+langchain-openai
