@@ -4,7 +4,7 @@ import base64
 from typing import Dict, Any
 from pathlib import Path
 
-from chains.planner_chain import planner_chain_invoke
+from chains.planner_chain import planner_chain
 from tools.browser_tools import take_screenshot
 
 
@@ -46,11 +46,10 @@ def planner_node(state: Dict[str, Any]) -> Dict[str, Any]:
     # ----------------------------
     # 4. CALL PLANNER WITH IMAGE
     # ----------------------------
-    result = planner_chain_invoke(
-        goal=goal,
-        page_data=page_data,
-        image_base64=image_base64,
-    )
+    result = planner_chain.invoke({
+        "goal": goal,
+        "page_data": page_data,
+    })
 
     # ----------------------------
     # 5. SAVE PLAN
