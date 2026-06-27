@@ -75,24 +75,6 @@ def _get_current_url() -> str:
         return ""
 
 
-def _detect_repetition(history: list) -> bool:
-    """Detect if the last N actions are identical (infinite loop)."""
-    if len(history) < MAX_REPEATED_ACTIONS:
-        return False
-
-    # Get the last MAX_REPEATED_ACTIONS entries
-    last_actions = history[-MAX_REPEATED_ACTIONS:]
-    
-    # Count occurrences of each action
-    action_counts = Counter(last_actions)
-    
-    # If any action appears MAX_REPEATED_ACTIONS times consecutively, it's a loop
-    for action, count in action_counts.items():
-        if count >= MAX_REPEATED_ACTIONS:
-            return True
-    
-    return False
-
 
 def worker_node(state):
     print("============worker_node (PLAN MODE)==============")

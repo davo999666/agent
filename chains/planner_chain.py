@@ -1,8 +1,8 @@
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
 from llm.model import model
 
-from prompts.planner_prompt import PLANNER_SYSTEM_PROMPT, PLANNER_HUMAN_TEMPLATE
+from prompts.planner_prompt import planner_prompt
 from prompts.final_prompt import final_prompt
 
 parser_str = StrOutputParser()
@@ -10,13 +10,16 @@ parser_json = JsonOutputParser()
 
 
 def build_planner_messages(goal: str, page_data: str, image_base64: str = None):
-    """Build multimodal messages for the planner, including an image if available."""
-    system_msg = SystemMessage(content=PLANNER_SYSTEM_PROMPT)
-
-    human_text = PLANNER_HUMAN_TEMPLATE.format(goal=goal, page_data=page_data)
+    """Build messages for the planner, injecting image into the human message if available."""
+    base_messages = planner_prompt.invoke({
+        "goal": goal,
+        "page_data": page_data,
+    }).to_messages()
 
     if image_base64:
-        human_content = [
+        # Replace the human message content with multimodal content blocks
+        human_text = base_messages[-1].content
+        base_messages[-1] = HumanMessage(content=[
             {"type": "text", "text": human_text},
             {
                 "type": "image_url",
@@ -24,12 +27,9 @@ def build_planner_messages(goal: str, page_data: str, image_base64: str = None):
                     "url": f"data:image/png;base64,{image_base64}",
                 },
             },
-        ]
-    else:
-        human_content = [{"type": "text", "text": human_text}]
+        ])
 
-    human_msg = HumanMessage(content=human_content)
-    return [system_msg, human_msg]
+    return base_messages
 
 
 def planner_chain_invoke(goal: str, page_data: str, image_base64: str = None):
